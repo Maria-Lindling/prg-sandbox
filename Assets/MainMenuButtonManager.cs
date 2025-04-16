@@ -2,9 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainMenuButtonManager : MonoBehaviour
 {
+    [SerializeField] private string gameSceneName;
+
     public void ButtonPressContinue()
     {
         DebugLogButonPress("Continue");
@@ -12,7 +15,8 @@ public class MainMenuButtonManager : MonoBehaviour
 
     public void ButtonPressNewGame()
     {
-        DebugLogButonPress("Start");
+        DebugLogButonPress("New Game");
+        SceneManager.LoadScene(gameSceneName);
     }
 
     public void ButtonPressLoadGame()
