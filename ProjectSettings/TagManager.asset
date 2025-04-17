@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Swamp
+  - ScreenTransition
+  - EncounterArea
   layers:
   - Default
   - TransparentFX
@@ -39,6 +41,15 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 605574625
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Player
+    uniqueID: 347053327
+    locked: 0
+  - name: Foreground
+    uniqueID: 630780845
     locked: 0

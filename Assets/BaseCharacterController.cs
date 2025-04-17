@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static UnityEngine.InputSystem.InputAction;
 
 public class BaseCharacterController : MonoBehaviour
@@ -44,11 +46,23 @@ public class BaseCharacterController : MonoBehaviour
         if (collision.gameObject.CompareTag("Swamp")) isSlowed = true;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)  { }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("ScreenTransition"))
+        {
+            Debug.Log("!!! Transition to new area. !!!");
+
+            if (SceneManager.GetActiveScene().name == "Game") SceneManager.LoadScene("Town");
+            if (SceneManager.GetActiveScene().name == "Town") SceneManager.LoadScene("Game");
+        }
+    }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Swamp")) isSlowed = true;
+
+        if (collision.gameObject.CompareTag("EncounterArea")) Debug.Log("!!! Roll for random encounter. !!!");
+
     }
 
     private void OnTriggerExit2D(Collider2D collision)
