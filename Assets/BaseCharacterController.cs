@@ -15,10 +15,23 @@ public class BaseCharacterController : MonoBehaviour
     private bool isSlowed;
     [Range(0,1)][SerializeField] private float slowedFactor;
 
+    private Vector3 lastPosition;
+
     private void Start()
     {
         rigidBody = GetComponent<Rigidbody2D>();
         isSlowed = false;
+
+        string spawnPoint = "SpawnPoint-0";
+
+        if(CharacterStatsManager.Instance != null)
+        {
+            spawnPoint = CharacterStatsManager.Instance.SpawnPoint;
+        }
+
+        transform.position = GameObject.Find(spawnPoint).transform.position;
+
+        lastPosition = transform.position;
     }
 
     // Start is called before the first frame update
@@ -31,6 +44,8 @@ public class BaseCharacterController : MonoBehaviour
     private void FixedUpdate()
     {
         //rigidBody.AddForce((Vector3)movementInput * movementSpeed);
+
+        lastPosition = transform.position;
 
         transform.Translate(
             new Vector3(movementInput.x,movementInput.y,0)
@@ -50,23 +65,46 @@ public class BaseCharacterController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("ScreenTransition"))
         {
-            Debug.Log("!!! Transition to new area. !!!");
+            Debug.Log($"!!! Transition to new area: {collision.gameObject.name} !!!");
 
-            if (SceneManager.GetActiveScene().name == "Game") SceneManager.LoadScene("Town");
-            if (SceneManager.GetActiveScene().name == "Town") SceneManager.LoadScene("Game");
+            (string Destination, int SpawnPoint) = ParseAreaExit(collision.gameObject.name);
+
+            CharacterStatsManager.Instance.SetSpawnPoint(SpawnPoint);
+            SceneManager.LoadScene(Destination);
         }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Swamp")) isSlowed = true;
+        switch( collision.gameObject.tag )
+        {
+            case "Swamp": isSlowed = true; break;
 
-        if (collision.gameObject.CompareTag("EncounterArea")) Debug.Log("!!! Roll for random encounter. !!!");
+            case "EncounterArea": CheckForEncounter(); break;
+
+            default: /*Debug.LogError("Unknown trigger area.");*/ break;
+
+        }
 
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Swamp")) isSlowed = false;
+    }
+
+    private void CheckForEncounter()
+    {
+
+        if(lastPosition != transform.position)
+            FightManager.Instance.CheckForEncounter();
+    }
+
+
+    private (string Destination,int SpawnPoint) ParseAreaExit(string exitName)
+    {
+        string[] splitExitName = exitName.Split('-');
+
+        return (splitExitName[1], Int32.Parse(splitExitName[2]));
     }
 }
