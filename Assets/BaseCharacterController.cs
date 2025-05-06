@@ -4,23 +4,55 @@ using System.Collections.Generic;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 using static UnityEngine.InputSystem.InputAction;
 
 public class BaseCharacterController : MonoBehaviour
 {
+    private static BaseCharacterController _instance;
+    public static BaseCharacterController Instance { get => _instance; private set => _instance = value; }
+
+
+    [SerializeField] private float movementSpeed;
+
     private Vector2 movementInput;
-    [SerializeField] float movementSpeed;
+
     private Rigidbody2D rigidBody;
 
     private bool isSlowed;
+
     [Range(0,1)][SerializeField] private float slowedFactor;
 
-    private Vector3 lastPosition;
+    private Tilemap m_tilemap;
+    public Tilemap Tilemap
+    {
+        get
+        {
+            if (m_tilemap == null) m_tilemap = FindObjectOfType<Tilemap>();
+            return m_tilemap;
+        }
+    }
+
+    public Vector2Int CurrentPosition { get => (Vector2Int) Tilemap.WorldToCell(transform.position); }
+
+    private Vector2Int _lastEncounterPosition;
+    public Vector2Int LastEncounterPosition { get => _lastEncounterPosition; set => _lastEncounterPosition = value; }
+
+    private bool _inputLock;
+    public bool InputLock { get => _inputLock; set => _inputLock = value; }
+
+    #region custom
+    private Vector3 _lastPosition;
+    public Vector3 LastPosition { get => _lastPosition; set => _lastPosition = value; }
+    #endregion
 
     private void Start()
     {
+        Instance = this;
+
         rigidBody = GetComponent<Rigidbody2D>();
-        isSlowed = false;
+        isSlowed  = false;
+        InputLock = false;
 
         string spawnPoint = "SpawnPoint-0";
 
@@ -31,7 +63,8 @@ public class BaseCharacterController : MonoBehaviour
 
         transform.position = GameObject.Find(spawnPoint).transform.position;
 
-        lastPosition = transform.position;
+        LastEncounterPosition = CurrentPosition;
+        LastPosition          = transform.position;
     }
 
     // Start is called before the first frame update
@@ -43,12 +76,14 @@ public class BaseCharacterController : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
+        if (InputLock) return;
+
         //rigidBody.AddForce((Vector3)movementInput * movementSpeed);
 
-        lastPosition = transform.position;
+        LastPosition = transform.position;
 
         transform.Translate(
-            new Vector3(movementInput.x,movementInput.y,0)
+            new Vector3(movementInput.x, movementInput.y, 0)
                 * Time.deltaTime
                 * (isSlowed ? movementSpeed * slowedFactor : movementSpeed)
         );
@@ -65,9 +100,10 @@ public class BaseCharacterController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("ScreenTransition"))
         {
-            Debug.Log($"!!! Transition to new area: {collision.gameObject.name} !!!");
 
             (string Destination, int SpawnPoint) = ParseAreaExit(collision.gameObject.name);
+
+            Debug.Log($"!!! Transition to new area: {Destination} !!!");
 
             CharacterStatsManager.Instance.SetSpawnPoint(SpawnPoint);
             SceneManager.LoadScene(Destination);
@@ -80,7 +116,13 @@ public class BaseCharacterController : MonoBehaviour
         {
             case "Swamp": isSlowed = true; break;
 
-            case "EncounterArea": CheckForEncounter(); break;
+            case "EncounterArea":
+                if( CheckForEncounter() )
+                {
+                    LastEncounterPosition = CurrentPosition;
+                    FightManager.Instance.BeginNewEncounter(EncounterTables.Default);
+                }
+                break;
 
             default: /*Debug.LogError("Unknown trigger area.");*/ break;
 
@@ -93,11 +135,14 @@ public class BaseCharacterController : MonoBehaviour
         if (collision.gameObject.CompareTag("Swamp")) isSlowed = false;
     }
 
-    private void CheckForEncounter()
+    private bool CheckForEncounter()
     {
+        /// Will attempt to check for an encounter only if the player has moved to a new tile
+        /// and only if the player has made a movement input (exact position has changed)
+        if(LastEncounterPosition != CurrentPosition && LastPosition != transform.position)
+            return FightManager.Instance.CheckForEncounter();
 
-        if(lastPosition != transform.position)
-            FightManager.Instance.CheckForEncounter();
+        return false;
     }
 
 

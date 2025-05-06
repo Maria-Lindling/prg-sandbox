@@ -23,6 +23,7 @@ public class CharacterStatsManager : MonoBehaviour
     public Dictionary<string, bool> Equipment { get => _equipment; private set => _equipment = value; }
     public Dictionary<string, int> Items { get => _items; private set => _items = value; }
 
+
     #region custom
     private int _spawnPoint;
     public string SpawnPoint { get => $"SpawnPoint-{_spawnPoint}"; }
