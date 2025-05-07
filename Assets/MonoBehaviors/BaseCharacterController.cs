@@ -117,11 +117,7 @@ public class BaseCharacterController : MonoBehaviour
             case "Swamp": isSlowed = true; break;
 
             case "EncounterArea":
-                if( CheckForEncounter() )
-                {
-                    LastEncounterPosition = CurrentPosition;
-                    FightManager.Instance.BeginNewEncounter(EncounterTables.Default);
-                }
+                if( CheckForEncounter() ) LastEncounterPosition = CurrentPosition;
                 break;
 
             default: /*Debug.LogError("Unknown trigger area.");*/ break;

@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class CombatEncounter
 {
-    private readonly List<string> _participants;
-    public IEnumerable<string> Enemies => _participants.Where((actor) => { return actor == "enemy"; });
-    public IEnumerable<string> Allies => _participants.Where((actor) => { return actor  == "ally"; });
+    private readonly List<IBattleActor> _participants;
+    public IEnumerable<IBattleActor> Enemies => _participants.Where((battleActor) => !battleActor.IsPlayerAligned);
+    public IEnumerable<IBattleActor> Allies => _participants.Where((battleActor) => battleActor.IsPlayerAligned);
 
 
     public CombatEncounter()
@@ -18,7 +18,7 @@ public class CombatEncounter
     }
 
 
-    void EndEncounter()
+    public void EndEncounter()
     {
         BaseCharacterController.Instance.InputLock = false;
     }

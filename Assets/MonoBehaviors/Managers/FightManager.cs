@@ -1,13 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using UnityEngine.Tilemaps;
 
 public class FightManager : MonoBehaviour
 {
     private static FightManager _instance;
-    public static FightManager Instance { get => _instance; private set => _instance = value; }
+    public static FightManager Instance => _instance;
+
 
     [Range(0, 100), SerializeField] private int _chanceToEncounter;
     public int ChanceToEncounter { get => _chanceToEncounter; set => _chanceToEncounter = value; }
@@ -29,12 +32,16 @@ public class FightManager : MonoBehaviour
     private CombatEncounter _activeEncounter;
     public CombatEncounter ActiveEncounter { get => _activeEncounter; private set => _activeEncounter = value; }
 
+    [SerializeField] private GameObject fightCanvas;
+
+    private bool isFightActive => (_activeEncounter != null);
+
     // Start is called before the first frame update
     void Start()
     {
-        if(Instance == null)
+        if(_instance == null)
         {
-            Instance = this;
+            _instance = this;
 
             LastEncounterRoll      = DateTime.Now;
 
@@ -44,7 +51,7 @@ public class FightManager : MonoBehaviour
 
             ChainEncounterCooldown = new TimeSpan(0, 0, 0, 2, 100);
         }
-        else if(Instance != this)
+        else if(_instance != this)
         {
             Destroy( gameObject );
         }
@@ -58,10 +65,13 @@ public class FightManager : MonoBehaviour
 
     public void BeginNewEncounter(EncounterTables encounterTable = EncounterTables.Default)
     {
+        // Create Encounter
         ActiveEncounter = new();
+
+        StartCoroutine(FightEncounter());
     }
 
-    public bool CheckForEncounter()
+    public bool CheckForEncounter(EncounterTables encounterTable = EncounterTables.Default)
     {
         /// There's an additional cooldown that makes sure the player doesn't
         /// instantly enter another encounter.
@@ -77,14 +87,45 @@ public class FightManager : MonoBehaviour
 
         if (UnityEngine.Random.Range(0,100) <= ChanceToEncounter)
         {
-            Debug.Log("Start Encounter");
+            BeginNewEncounter(encounterTable);
             return true;
         }
         else
         {
-            Debug.Log("No Encounter");
             return false;
         }
 
+    }
+
+    private IEnumerator FightEncounter()
+    {
+        // Begin Transition Animation
+
+        //     Load Characters
+        //     Load Random Enemies
+        //     Load BackgroundImages
+        //     Load Music
+        //     Load UI
+        //     Load Items
+
+        // End Transition Animation ; should be a loop with yield return new WaitForEndOfFrame()
+
+        fightCanvas.SetActive(true);
+
+        while (isFightActive)
+        {
+            // Check whose turn
+            // Execute player/ Enemies turn actions
+            // Show and wait for end of Fight
+            // Set isFightActive to false <- GameOver? Enemies Dead?
+            /* yield return new WaitForEndOfFrame();*/
+            yield return new WaitForSeconds(3.0f);
+            fightCanvas.SetActive(false);
+            ActiveEncounter.EndEncounter();
+            ActiveEncounter = null;
+        }
+
+        // End Fight and gain XP and Gold
+        // Level UP?
     }
 }

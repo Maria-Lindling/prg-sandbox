@@ -2,24 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterStatsManager : MonoBehaviour
+public class CharacterStatsManager : MonoBehaviour, IStatSheet<string,int>
 {
     private static CharacterStatsManager _instance;
 
     public static CharacterStatsManager Instance { get => _instance; private set => _instance = value; }
+
+    private Dictionary<string, ActorStat<int>> _allStats;
+    public Dictionary<string, ActorStat<int>> All => _allStats;
 
 
     [SerializeField] private int _experiencePoints;
     [SerializeField] private int _level;
     [SerializeField] private int _health;
     [SerializeField] private int _maxHealth;
-    [SerializeField] private Dictionary<string, bool> _equipment;
-    [SerializeField] private Dictionary<string, int> _items;
+    private Dictionary<string, bool> _equipment;
+    private Dictionary<string, int> _items;
 
-    public int ExperiencePoints { get => _experiencePoints; private set => _experiencePoints = value; }
-    public int Level { get => _level; private set => _level = value; }
-    public int Health { get => _health; private set => _health = value; }
-    public int MaxHealth { get => _maxHealth; private set => _maxHealth = value; }
+
+    public int ExperiencePoints { get => _allStats["ExperiencePoints"].Value; private set => _allStats["ExperiencePoints"].Value = value; }
+    public int Level { get => _allStats["Level"].Value; private set => _allStats["Level"].Value = value; }
+    public int Health { get => _allStats["Health"].Value; private set => _allStats["Health"].Value = value; }
+    public int MaxHealth { get => _allStats["Health"].Max; private set => _allStats["Health"].Max = value; }
+
+
     public Dictionary<string, bool> Equipment { get => _equipment; private set => _equipment = value; }
     public Dictionary<string, int> Items { get => _items; private set => _items = value; }
 
@@ -36,6 +42,7 @@ public class CharacterStatsManager : MonoBehaviour
         if(Instance == null)
         {
             Instance = this;
+            _allStats = new();
 
             Load();
         }
@@ -53,10 +60,13 @@ public class CharacterStatsManager : MonoBehaviour
 
     private void Load()
     {
-        ExperiencePoints = 0;
-        Level            = 1;
-        Health           = 100;
-        MaxHealth        = 100;
+        _allStats.Add("ExperiencePoints", new ActorStat<int>(_experiencePoints));
+
+        _allStats.Add("Level", new ActorStat<int>(_level));
+
+        _allStats.Add("Health", new ActorStat<int>(_health));
+
+        _allStats["Health"].Max = _maxHealth;
 
         Equipment        = new();
         Items            = new();
