@@ -5,5 +5,5 @@ using UnityEngine;
 public interface IActor
 {
 
-    public IBattleActor<string, int> GenerateBattleActor();
+    public BattleActor GenerateBattleActor();
 }

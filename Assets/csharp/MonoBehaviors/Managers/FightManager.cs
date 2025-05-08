@@ -63,14 +63,6 @@ public class FightManager : MonoBehaviour
         
     }
 
-    public void BeginNewEncounter(EncounterTables encounterTable = EncounterTables.Default)
-    {
-        // Create Encounter
-        ActiveEncounter = new();
-
-        StartCoroutine(FightEncounter());
-    }
-
     public bool CheckForEncounter(EncounterTables encounterTable = EncounterTables.Default)
     {
         /// There's an additional cooldown that makes sure the player doesn't
@@ -87,7 +79,7 @@ public class FightManager : MonoBehaviour
 
         if (UnityEngine.Random.Range(0,100) <= ChanceToEncounter)
         {
-            BeginNewEncounter(encounterTable);
+            StartCoroutine(FightEncounter());
             return true;
         }
         else
@@ -97,16 +89,31 @@ public class FightManager : MonoBehaviour
 
     }
 
-    private IEnumerator FightEncounter()
+    private IEnumerator FightEncounter(EncounterTables encounterTable = EncounterTables.Default)
     {
+        ActiveEncounter = new();
+
         // Begin Transition Animation
 
         //     Load Characters
+        ActiveEncounter.LoadCharacters();
         //     Load Random Enemies
+        ActiveEncounter.LoadEnemies(encounterTable);
         //     Load BackgroundImages
         //     Load Music
         //     Load UI
         //     Load Items
+
+        //     Spawn Characters
+        foreach(IBattleActor<string, int> battleActor in ActiveEncounter.Allies)
+        {
+            SpawnManager.Instance.SpawnInBattle(battleActor, 0);
+        }
+        //     Spawn Enemies
+        foreach (IBattleActor<string, int> battleActor in ActiveEncounter.Enemies)
+        {
+            SpawnManager.Instance.SpawnInBattle(battleActor, 4);
+        }
 
         // End Transition Animation ; should be a loop with yield return new WaitForEndOfFrame()
 
