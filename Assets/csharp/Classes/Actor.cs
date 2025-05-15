@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Actor : IActor
+public class Actor
 {
     protected string _name;
     public string Name => _name;
@@ -10,11 +10,5 @@ public class Actor : IActor
     public Actor(string name)
     {
         _name = name;
-    }
-
-
-    virtual public BattleActor GenerateBattleActor()
-    {
-        return new(Name,false);
     }
 }

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f5aff6ebf40d3d43885751c9f745eb3, type: 3}
-  m_Name: Warrior
+  m_Name: Slug
   m_EditorClassIdentifier: 
-  prefabName: Warrior
+  prefabName: Slug
   numberOfPrefabsToCreate: 0
-  experiencePoints: 0
-  maxHealth: 200
+  experiencePoints: 100
+  maxHealth: 50
   spawnPoints: []

@@ -11,6 +11,9 @@ public class FightManager : MonoBehaviour
     private static FightManager _instance;
     public static FightManager Instance => _instance;
 
+    [SerializeField] List<BattleActorScriptableObject> allyPool;
+    public List<BattleActorScriptableObject> AllyPool => allyPool;
+
 
     [Range(0, 100), SerializeField] private int _chanceToEncounter;
     public int ChanceToEncounter { get => _chanceToEncounter; set => _chanceToEncounter = value; }
@@ -33,6 +36,8 @@ public class FightManager : MonoBehaviour
     public CombatEncounter ActiveEncounter { get => _activeEncounter; private set => _activeEncounter = value; }
 
     [SerializeField] private GameObject fightCanvas;
+    [SerializeField] private GameObject playerPanel;
+    public GameObject PlayerPanel => playerPanel;
 
     private bool isFightActive => (_activeEncounter != null);
 
@@ -105,14 +110,14 @@ public class FightManager : MonoBehaviour
         //     Load Items
 
         //     Spawn Characters
-        foreach(IBattleActor<string, int> battleActor in ActiveEncounter.Allies)
+        foreach(BattleActor battleActor in ActiveEncounter.Allies)
         {
-            SpawnManager.Instance.SpawnInBattle(battleActor, 0);
+            SpawnManager.Instance.SpawnInBattle(battleActor, playerPanel);
         }
         //     Spawn Enemies
-        foreach (IBattleActor<string, int> battleActor in ActiveEncounter.Enemies)
+        foreach (BattleActor battleActor in ActiveEncounter.Enemies)
         {
-            SpawnManager.Instance.SpawnInBattle(battleActor, 4);
+            SpawnManager.Instance.SpawnInBattle(battleActor, playerPanel);
         }
 
         // End Transition Animation ; should be a loop with yield return new WaitForEndOfFrame()
@@ -127,9 +132,12 @@ public class FightManager : MonoBehaviour
             // Set isFightActive to false <- GameOver? Enemies Dead?
             /* yield return new WaitForEndOfFrame();*/
             yield return new WaitForSeconds(3.0f);
-            fightCanvas.SetActive(false);
-            ActiveEncounter.EndEncounter();
-            ActiveEncounter = null;
+            if(true || ActiveEncounter.EndConditionsMet)
+            {
+                fightCanvas.SetActive(false);
+                ActiveEncounter.EndEncounter();
+                ActiveEncounter = null;
+            }
         }
 
         // End Fight and gain XP and Gold

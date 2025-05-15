@@ -11,6 +11,10 @@ public class BattleActorScriptableObject : ScriptableObject
 
     public int numberOfPrefabsToCreate;
 
+    public int experiencePoints;
+
+    public int maxHealth;
+
     public Vector3[] spawnPoints;
     //end       example
 
@@ -33,4 +37,16 @@ public class BattleActorScriptableObject : ScriptableObject
         _items      = new();
     }
 
+
+    public BattleActor GenerateBattleActor(bool isPlayerControlled)
+    {
+
+        GameObject go = new GameObject("BattleActor");
+        go.transform.SetParent(FightManager.Instance.PlayerPanel.transform);
+        
+        BattleActor ba = go.AddComponent<BattleActor>();
+        ba.battleActorValues = this;
+        ba.IsPlayerControlled = isPlayerControlled;
+        return ba;
+    }
 }

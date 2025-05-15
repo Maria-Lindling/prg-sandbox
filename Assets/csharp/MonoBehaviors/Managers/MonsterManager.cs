@@ -9,8 +9,8 @@ public class MonsterManager : MonoBehaviour
     public static MonsterManager Instance { get => _instance; private set => _instance = value; }
 
 
-    private List<Actor> _monsterManual;
-    public List<Actor> MonsterManual => _monsterManual;
+    [SerializeField] List<BattleActorScriptableObject> monsterManual;
+    public List<BattleActorScriptableObject> MonsterManual => monsterManual;
 
 
     // Start is called before the first frame update
@@ -19,9 +19,6 @@ public class MonsterManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            _monsterManual = new();
-
-            _monsterManual.Append(new Actor("Slug"));
         }
         else if (Instance != this)
         {

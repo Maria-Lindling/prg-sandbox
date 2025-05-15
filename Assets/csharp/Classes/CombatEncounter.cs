@@ -9,6 +9,9 @@ public class CombatEncounter
     public IEnumerable<BattleActor> Allies => _participants.Where((battleActor) => battleActor.IsPlayerControlled);
     public IEnumerable<BattleActor> Enemies => _participants.Where((battleActor) => !battleActor.IsPlayerControlled);
 
+    public bool PlayerDefeated => !Allies.Any((battleActor) => battleActor.IsAlive);
+    public bool EnemiesDefeated => !Enemies.Any((battleActor) => battleActor.IsAlive);
+    public bool EndConditionsMet => (PlayerDefeated || EnemiesDefeated);
 
     public CombatEncounter()
     {
@@ -19,7 +22,7 @@ public class CombatEncounter
 
     public void LoadCharacters()
     {
-        PlayerActor.CurrentParty.ForEach( a => _participants.Append(a.GenerateBattleActor()) );
+        FightManager.Instance.AllyPool.ForEach( a => _participants.Append(a.GenerateBattleActor(true)) );
     }
 
     public void LoadEnemies(EncounterTables encounterTable = EncounterTables.Default)
@@ -32,8 +35,8 @@ public class CombatEncounter
                         MonsterManager
                         .Instance
                         .MonsterManual
-                        .First( a => a.Name == "Slug")
-                        .GenerateBattleActor()
+                        .First( a => a.prefabName == "Slug")
+                        .GenerateBattleActor(false)
                 ) ;
                 break;
         }
@@ -41,6 +44,9 @@ public class CombatEncounter
 
     public void EndEncounter()
     {
+        // remove all?
+        //_participants.ForEach((a) => a);
         BaseCharacterController.Instance.InputLock = false;
     }
+
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleActor : MonoBehaviour
 {
@@ -19,26 +20,30 @@ public class BattleActor : MonoBehaviour
     //end       example code
 
 
-    public string Name { get; private set; }
-    public bool IsPlayerControlled { get; private set; }
+    public string Name { get => battleActorValues.prefabName; private set => battleActorValues.prefabName = value; }
+    public bool IsPlayerControlled { get; set; }
 
+    public bool IsAlive => _isAlive;
 
-    public BattleActor(string name, bool isPlayerControlled)
-    {
-        Name = name;
-        IsPlayerControlled = isPlayerControlled;
+    private bool _isAlive = true;
 
-        SpawnEntities();
-    }
-
-    private void SpawnEntities()
+    public BattleActor SpawnEntity(GameObject spawnPoint)
     {
         int currentSpawnPointIndex = 0;
 
         for (int i = 0; i < battleActorValues.numberOfPrefabsToCreate; i++)
         {
             // Creates an instance of the prefab at the current spawn point.
-            GameObject currentEntity = Instantiate(entity, battleActorValues.spawnPoints[currentSpawnPointIndex], Quaternion.identity);
+            GameObject currentEntity = GameObject.Instantiate(entity, spawnPoint.transform);
+
+            /// ?????
+            currentEntity.layer = 5;
+            currentEntity.AddComponent<RectTransform>();
+            currentEntity.GetComponent<RectTransform>().position = new Vector3(-60, 60, 0);
+            currentEntity.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+            currentEntity.GetComponent<RectTransform>().SetParent(FightManager.Instance.PlayerPanel.transform);
+            currentEntity.AddComponent<Image>().color = new Color(1.0f, 0.25f, 0.25f);
+            // this isn't working! Why? :think:
 
             // Sets the name of the instantiated entity to be the string defined in the ScriptableObject and then appends it with a unique number. 
             currentEntity.name = battleActorValues.prefabName + instanceNumber;
@@ -50,6 +55,8 @@ public class BattleActor : MonoBehaviour
 
             Instances.Append(this);
         }
+
+        return this;
     }
 
 
