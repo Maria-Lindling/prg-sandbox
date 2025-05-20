@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
@@ -108,17 +109,6 @@ public class FightManager : MonoBehaviour
         //     Load Music
         //     Load UI
         //     Load Items
-
-        //     Spawn Characters
-        foreach(BattleActor battleActor in ActiveEncounter.Allies)
-        {
-            SpawnManager.Instance.SpawnInBattle(battleActor, playerPanel);
-        }
-        //     Spawn Enemies
-        foreach (BattleActor battleActor in ActiveEncounter.Enemies)
-        {
-            SpawnManager.Instance.SpawnInBattle(battleActor, playerPanel);
-        }
 
         // End Transition Animation ; should be a loop with yield return new WaitForEndOfFrame()
 

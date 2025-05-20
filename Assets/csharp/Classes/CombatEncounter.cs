@@ -22,7 +22,7 @@ public class CombatEncounter
 
     public void LoadCharacters()
     {
-        FightManager.Instance.AllyPool.ForEach( a => _participants.Append(a.GenerateBattleActor(true)) );
+        FightManager.Instance.AllyPool.ForEach( a => _participants.Add(a.GenerateBattleActor(true)) );
     }
 
     public void LoadEnemies(EncounterTables encounterTable = EncounterTables.Default)

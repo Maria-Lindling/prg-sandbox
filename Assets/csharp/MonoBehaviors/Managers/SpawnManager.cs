@@ -31,13 +31,6 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    /// <param name="battleActor"></param>
-    /// <param name="gameObject"></param>
-    public void SpawnInBattle(BattleActor battleActor, GameObject gameObject)
-    {
-        battleActor.SpawnEntity(gameObject);
-    }
-
     public void SpawnObject(GameObject spawnableObject, SpawnPoint spawnPoint)
     {
         Instantiate(spawnableObject,spawnPoint.Use());

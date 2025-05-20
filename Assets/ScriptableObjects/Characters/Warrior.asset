@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Warrior
   m_EditorClassIdentifier: 
   prefabName: Warrior
+  spawnablePrefab: {fileID: 5969483829793109988, guid: db64929d9ae22a44da84c112a965f5e4,
+    type: 3}
   numberOfPrefabsToCreate: 0
   experiencePoints: 0
   maxHealth: 200
