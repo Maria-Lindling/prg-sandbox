@@ -7,12 +7,8 @@ using UnityEngine.UI;
 
 public class BattleActor : MonoBehaviour
 {
-    //start     example code
-
     // An instance of the ScriptableObject defined above.
     public BattleActorScriptableObject battleActorValues;
-
-    //end       example code
 
 
     public string Name { get => battleActorValues.prefabName; private set => battleActorValues.prefabName = value; }
@@ -28,7 +24,7 @@ public class BattleActor : MonoBehaviour
 
     static BattleActor()
     {
-        Instances        = new();
+        Instances = new();
     }
     #endregion
 }

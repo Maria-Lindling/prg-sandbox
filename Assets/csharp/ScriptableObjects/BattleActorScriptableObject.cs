@@ -48,13 +48,22 @@ public class BattleActorScriptableObject : ScriptableObject
 
     public BattleActor GenerateBattleActor(bool isPlayerControlled)
     {
+        RectTransform spawnPoint = (
+            isPlayerControlled ?
+                FightManager.Instance.PlayerPanel :
+                FightManager.Instance.EnemyPanel
+            ).GetComponent<RectTransform>();
+
         // Creates an instance of the prefab at the current spawn point.
-        GameObject currentEntity = Instantiate(spawnablePrefab, FightManager.Instance.PlayerPanel.GetComponent<RectTransform>());
+        GameObject currentEntity = Instantiate(spawnablePrefab, spawnPoint);
 
         /// ?????
         BattleActor ba = currentEntity.AddComponent<BattleActor>();
         ba.battleActorValues = this;
         ba.IsPlayerControlled = isPlayerControlled;
+
+        //SpriteRenderer sr = currentEntity.AddComponent<SpriteRenderer>();
+
         //currentEntity.layer = 5;
         //RectTransform rt = currentEntity.AddComponent<RectTransform>();
         //rt.SetParent(FightManager.Instance.PlayerPanel.GetComponent<RectTransform>());

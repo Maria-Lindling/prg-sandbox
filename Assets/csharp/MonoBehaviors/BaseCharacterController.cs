@@ -41,6 +41,8 @@ public class BaseCharacterController : MonoBehaviour
     private bool _inputLock;
     public bool InputLock { get => _inputLock; set => _inputLock = value; }
 
+    private CharacterAnimationManager characterAnimationManager;
+
     #region custom
     private Vector3 _lastPosition;
     public Vector3 LastPosition { get => _lastPosition; set => _lastPosition = value; }
@@ -65,6 +67,8 @@ public class BaseCharacterController : MonoBehaviour
 
         LastEncounterPosition = CurrentPosition;
         LastPosition          = transform.position;
+
+        characterAnimationManager = GetComponent<CharacterAnimationManager>();
     }
 
     // Start is called before the first frame update
@@ -76,7 +80,11 @@ public class BaseCharacterController : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (InputLock) return;
+        if (InputLock)
+        {
+            characterAnimationManager.SetAnimatorValues(0,0);
+            return;
+        }
 
         //rigidBody.AddForce((Vector3)movementInput * movementSpeed);
 
@@ -87,11 +95,13 @@ public class BaseCharacterController : MonoBehaviour
                 * Time.deltaTime
                 * (isSlowed ? movementSpeed * slowedFactor : movementSpeed)
         );
+
+        characterAnimationManager.SetAnimatorValues(movementInput.x, movementInput.y);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Collision detected with " + collision.gameObject.name);
+        //Debug.Log("Collision detected with " + collision.gameObject.name);
 
         if (collision.gameObject.CompareTag("Swamp")) isSlowed = true;
     }

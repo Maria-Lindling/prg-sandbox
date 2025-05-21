@@ -38,7 +38,9 @@ public class FightManager : MonoBehaviour
 
     [SerializeField] private GameObject fightCanvas;
     [SerializeField] private GameObject playerPanel;
+    [SerializeField] private GameObject enemyPanel;
     public GameObject PlayerPanel => playerPanel;
+    public GameObject EnemyPanel => enemyPanel;
 
     private bool isFightActive => (_activeEncounter != null);
 
@@ -121,7 +123,7 @@ public class FightManager : MonoBehaviour
             // Show and wait for end of Fight
             // Set isFightActive to false <- GameOver? Enemies Dead?
             /* yield return new WaitForEndOfFrame();*/
-            yield return new WaitForSeconds(3.0f);
+            yield return new WaitForSeconds(60.0f);
             if(true || ActiveEncounter.EndConditionsMet)
             {
                 fightCanvas.SetActive(false);
