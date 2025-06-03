@@ -6,19 +6,22 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class FightManager : MonoBehaviour
 {
+    #region Persistent Instance
     private static FightManager _instance;
     public static FightManager Instance => _instance;
+    #endregion
 
+    #region Player Characters
     [SerializeField] List<BattleActorScriptableObject> allyPool;
     public List<BattleActorScriptableObject> AllyPool => allyPool;
+    #endregion
 
-
-    [Range(0, 100), SerializeField] private int _chanceToEncounter;
-    public int ChanceToEncounter { get => _chanceToEncounter; set => _chanceToEncounter = value; }
-
+    #region Random Encounter
+    public int ChanceToEncounter { get => chanceToEncounter; set => chanceToEncounter = value; }
 
     private DateTime _lastEncounterRoll;
     public DateTime LastEncounterRoll { get => _lastEncounterRoll; private set => _lastEncounterRoll = value; }
@@ -32,17 +35,38 @@ public class FightManager : MonoBehaviour
 
     private TimeSpan _chainEncounterCooldown;
     public TimeSpan ChainEncounterCooldown { get => _chainEncounterCooldown; set => _chainEncounterCooldown = value; }
+    #endregion
 
+    #region Active Encounter
     private CombatEncounter _activeEncounter;
     public CombatEncounter ActiveEncounter { get => _activeEncounter; private set => _activeEncounter = value; }
+    private bool isFightActive => (_activeEncounter != null);
+    #endregion
 
+    #region Serialized Fields
+    [Range(0, 100), SerializeField] private int chanceToEncounter;
+    [SerializeField] private int encounterRollCooldown;
+    [SerializeField] private int chainEncounterCooldown;
     [SerializeField] private GameObject fightCanvas;
     [SerializeField] private GameObject playerPanel;
     [SerializeField] private GameObject enemyPanel;
+    [SerializeField] private GameObject skillSelectPanel;
+    [SerializeField] private GameObject itemSelectPanel;
+    [SerializeField] private GameObject contextInfoPanel;
+
+    [SerializeField] private Button attackButton;
+    [SerializeField] private Button skillButton;
+    [SerializeField] private Button itemButton;
+    [SerializeField] private Button fleeButton;
+    #endregion
+
+    #region Fight Canvas Elements
     public GameObject PlayerPanel => playerPanel;
     public GameObject EnemyPanel => enemyPanel;
-
-    private bool isFightActive => (_activeEncounter != null);
+    public GameObject SkillSelectPanel => skillSelectPanel;
+    public GameObject ItemSelectPanel => itemSelectPanel;
+    public GameObject ContextInfoPanel => contextInfoPanel;
+    #endregion
 
     // Start is called before the first frame update
     void Start()
@@ -55,20 +79,14 @@ public class FightManager : MonoBehaviour
 
             LastEncounterComplete  = DateTime.MinValue;
 
-            EncounterRollCooldown  = new TimeSpan(0, 0, 0, 0, 700);
+            EncounterRollCooldown  = new TimeSpan(0, 0, 0, 0, encounterRollCooldown);
 
-            ChainEncounterCooldown = new TimeSpan(0, 0, 0, 2, 100);
+            ChainEncounterCooldown = new TimeSpan(0, 0, 0, 0, chainEncounterCooldown);
         }
         else if(_instance != this)
         {
-            Destroy( gameObject );
+            Destroy(gameObject);
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public bool CheckForEncounter(EncounterTables encounterTable = EncounterTables.Default)

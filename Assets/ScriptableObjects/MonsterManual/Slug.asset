@@ -15,7 +15,10 @@ MonoBehaviour:
   prefabName: Slug
   spawnablePrefab: {fileID: 5969483829793109988, guid: db64929d9ae22a44da84c112a965f5e4,
     type: 3}
-  numberOfPrefabsToCreate: 0
+  actorSprite: {fileID: 21300000, guid: 551cb54b2be67ba479d96244192ce9f2, type: 3}
+  spriteWidth: 128
+  spriteHeight: 128
+  flipSprite: 0
   experiencePoints: 100
   maxHealth: 50
   spawnPoints: []

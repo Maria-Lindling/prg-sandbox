@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b80307022f92654385f900cdf125da7, type: 3}
+  m_Name: MinorHealingPotion
+  m_EditorClassIdentifier: 
+  itemName: Healing Potion
+  itemDescription: 
+  itemUnitQuantity: 1
+  itemUnitPrice: 50
+  itemIcon: {fileID: 0}
+  isConsumable: 1
+  isEquippable: 0
+  isEquipped: 0
+  isUsableInBattle: 1
+  isUsableOutsideBattle: 1
+  isStackable: 1
+  itemStackSize: 5
+  isSellable: 1
+  isCraftable: 1
+  isTradable: 1
+  isDestroyable: 1
+  isQuestItem: 0

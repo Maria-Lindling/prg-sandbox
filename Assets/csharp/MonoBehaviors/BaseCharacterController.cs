@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using static UnityEngine.InputSystem.InputAction;
@@ -13,9 +14,18 @@ public class BaseCharacterController : MonoBehaviour
     public static BaseCharacterController Instance { get => _instance; private set => _instance = value; }
 
 
+    private GameObject _interactTarget;
+
+    private PlayerInput playerInput;
+
+    public PlayerInput PlayerInput => playerInput;
+
+
     [SerializeField] private float movementSpeed;
 
     private Vector2 movementInput;
+
+    private bool itemMenuToggleInput;
 
     private Rigidbody2D rigidBody;
 
@@ -48,6 +58,7 @@ public class BaseCharacterController : MonoBehaviour
     public Vector3 LastPosition { get => _lastPosition; set => _lastPosition = value; }
     #endregion
 
+    // Start is called before the first frame update
     private void Start()
     {
         Instance = this;
@@ -55,6 +66,8 @@ public class BaseCharacterController : MonoBehaviour
         rigidBody = GetComponent<Rigidbody2D>();
         isSlowed  = false;
         InputLock = false;
+
+        playerInput = GetComponent<PlayerInput>();
 
         string spawnPoint = "SpawnPoint-0";
 
@@ -71,7 +84,6 @@ public class BaseCharacterController : MonoBehaviour
         characterAnimationManager = GetComponent<CharacterAnimationManager>();
     }
 
-    // Start is called before the first frame update
     public void Movement(CallbackContext ctx)
     {
         movementInput = ctx.ReadValue<Vector2>();
@@ -86,8 +98,6 @@ public class BaseCharacterController : MonoBehaviour
             return;
         }
 
-        //rigidBody.AddForce((Vector3)movementInput * movementSpeed);
-
         LastPosition = transform.position;
 
         transform.Translate(
@@ -97,6 +107,28 @@ public class BaseCharacterController : MonoBehaviour
         );
 
         characterAnimationManager.SetAnimatorValues(movementInput.x, movementInput.y);
+    }
+
+    public void PausePlayer(bool isPaused)
+    {
+        _inputLock = isPaused;
+
+        // Get the specific InputAction for movement.
+        InputAction movementAction = playerInput.actions["Movement"];
+
+        if (isPaused)
+        {
+            // Unsubscribe from the movement input.
+            movementAction.performed -= Movement;
+            movementAction.canceled -= Movement;
+            movementInput = Vector2.zero; // Reset movement input when unpausing
+        }
+        else
+        {
+            // Subscribe to the movement input.
+            movementAction.performed += Movement;
+            movementAction.canceled += Movement;
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -117,6 +149,16 @@ public class BaseCharacterController : MonoBehaviour
 
             CharacterStatsManager.Instance.SetSpawnPoint(SpawnPoint);
             SceneManager.LoadScene(Destination);
+        }
+        else if(collision.gameObject.CompareTag("Container"))
+        {
+            //Debug.Log("Entering interaction range of Container.");
+            _interactTarget = collision.gameObject;
+            // Get the specific InputAction for movement.
+            InputAction interactAction = playerInput.actions["Interaction"];
+
+            interactAction.performed += _interactTarget.GetComponent<ItemContainerManager>().Interact;
+            interactAction.canceled += _interactTarget.GetComponent<ItemContainerManager>().Interact;
         }
     }
 
@@ -139,6 +181,17 @@ public class BaseCharacterController : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Swamp")) isSlowed = false;
+        else if (collision.gameObject.CompareTag("Container"))
+        {
+            //Debug.Log("Leaving interaction range of Container.");
+            // Get the specific InputAction for movement.
+            InputAction interactAction = playerInput.actions["Interaction"];
+
+            interactAction.performed -= collision.gameObject.GetComponent<ItemContainerManager>().Interact;
+            interactAction.canceled -= collision.gameObject.GetComponent<ItemContainerManager>().Interact;
+
+            _interactTarget = null;
+        }
     }
 
     private bool CheckForEncounter()

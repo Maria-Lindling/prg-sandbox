@@ -7,11 +7,12 @@ TagManager:
   - Swamp
   - ScreenTransition
   - EncounterArea
+  - Container
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - UI Background
   - Water
   - UI
   - 

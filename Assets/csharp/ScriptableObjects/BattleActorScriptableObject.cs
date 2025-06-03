@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/BattleActor", order = 1)]
@@ -12,7 +13,13 @@ public class BattleActorScriptableObject : ScriptableObject
 
     public GameObject spawnablePrefab;
 
-    public int numberOfPrefabsToCreate;
+    public Sprite actorSprite;
+
+    public int spriteWidth;
+
+    public int spriteHeight;
+
+    public bool flipSprite;
 
     public int experiencePoints;
 
@@ -62,7 +69,16 @@ public class BattleActorScriptableObject : ScriptableObject
         ba.battleActorValues = this;
         ba.IsPlayerControlled = isPlayerControlled;
 
-        //SpriteRenderer sr = currentEntity.AddComponent<SpriteRenderer>();
+        Image img = currentEntity.GetComponent<Image>();
+        img.sprite = actorSprite;
+
+        RectTransform rt = currentEntity.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(spriteWidth, spriteHeight);
+
+        if ( flipSprite )
+        {
+            rt.localScale = new Vector3(rt.localScale.x * -1, rt.localScale.y, rt.localScale.z);
+        }
 
         //currentEntity.layer = 5;
         //RectTransform rt = currentEntity.AddComponent<RectTransform>();

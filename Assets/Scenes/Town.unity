@@ -2237,10 +2237,12 @@ GameObject:
   m_Component:
   - component: {fileID: 198097024}
   - component: {fileID: 198097025}
+  - component: {fileID: 198097030}
   - component: {fileID: 198097029}
   - component: {fileID: 198097028}
   - component: {fileID: 198097027}
   - component: {fileID: 198097026}
+  - component: {fileID: 198097031}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2435,11 +2437,92 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 1471ff38-baba-4788-b3e2-250fbadb3bf1
     m_ActionName: Player/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a5f010be-392d-4745-b840-c0a60e69f0ea
+    m_ActionName: Player/Interaction[/Keyboard/e]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 81084adc-7f56-42d4-b74c-093e7674015e
+    m_ActionName: Player/Open/Close Inventory[/Keyboard/i]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0d1533db-4ea0-4dc7-a7c9-afd58fc6f0f2
+    m_ActionName: UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 9dd49152-70c6-4837-af19-8757f2b4d793
+    m_ActionName: UI/Submit[/Keyboard/enter]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 93180eeb-8553-4c9e-821f-a410c5cf1129
+    m_ActionName: UI/Cancel[/Keyboard/escape]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: eb83afbc-4d34-4181-9f54-c9b51bdbac10
+    m_ActionName: UI/Point[/Mouse/position,/Pen/position]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1dbbacb6-f6ff-4c8d-b50f-5d73c679690d
+    m_ActionName: UI/Click[/Mouse/leftButton,/Pen/tip]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 67e902d4-6559-4238-ad57-f3a0ebd2863e
+    m_ActionName: UI/ScrollWheel[/Mouse/scroll]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d075cbfd-4adc-4f4b-827e-4f0f9133dd94
+    m_ActionName: UI/MiddleClick[/Mouse/middleButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: deb95d4c-6d07-4f6b-a8c5-7aab5e759183
+    m_ActionName: UI/RightClick[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e002cc65-4f08-42d2-9a32-5f3d8baadd98
+    m_ActionName: UI/TrackedDevicePosition
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 09ef5816-34a2-429e-998a-1255019b95e2
+    m_ActionName: UI/TrackedDeviceOrientation
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &198097030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 198097023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84dec9ab4b2e587409c218bd848de994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!95 &198097031
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 198097023}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a9aa2fdd58609c747a823bf424921842, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &251445513
 GameObject:
   m_ObjectHideFlags: 0
@@ -323071,10 +323154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6cf820ddd080234b9ac3f898a6f40c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _experiencePoints: 0
-  _level: 0
-  _health: 0
-  _maxHealth: 0
 --- !u!114 &2123155445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -323087,7 +323166,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5ab7a9c339140f4fa77215f55af8209, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _chanceToEncounter: 0
+  allyPool: []
+  chanceToEncounter: 0
+  encounterRollCooldown: 0
+  chainEncounterCooldown: 0
+  fightCanvas: {fileID: 0}
+  playerPanel: {fileID: 0}
+  enemyPanel: {fileID: 0}
+  skillSelectPanel: {fileID: 0}
+  itemSelectPanel: {fileID: 0}
+  contextInfoPanel: {fileID: 0}
+  attackButton: {fileID: 0}
+  skillButton: {fileID: 0}
+  itemButton: {fileID: 0}
+  fleeButton: {fileID: 0}
 --- !u!114 &2123155446
 MonoBehaviour:
   m_ObjectHideFlags: 0
