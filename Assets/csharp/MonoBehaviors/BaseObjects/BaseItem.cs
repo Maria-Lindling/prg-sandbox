@@ -46,4 +46,7 @@ public class BaseItem : ScriptableObject
     [SerializeField] private bool isDestroyable;
     [SerializeField] private bool isQuestItem;
     #endregion
+
+    public string ItemName => itemName;
+    public string ItemDescription => itemDescription;
 }
