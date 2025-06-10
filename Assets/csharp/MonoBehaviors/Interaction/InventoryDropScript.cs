@@ -72,11 +72,7 @@ public class InventoryDropScript : MonoBehaviour, IDropHandler
         GameObject pointerDrag,
         List<InventoryItemEntryScriptableObject> inventoryItems) =>
             inventoryItems
-                .Where(iie => {
-                    int pointerIndex = pointerDrag.GetComponent<InventoryItemDataShell>().Index;
-                    int entryIndex = iie.RepresentedBy.GetComponent<InventoryItemDataShell>().Index;
-                    return (pointerIndex == entryIndex);
-                })
+                .Where(iie => (iie.RepresentedBy == pointerDrag))
                     .FirstOrDefault();
 
     /// <summary>

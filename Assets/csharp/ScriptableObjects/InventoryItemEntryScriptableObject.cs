@@ -14,8 +14,14 @@ public class InventoryItemEntryScriptableObject : ScriptableObject
     /// </summary>
     public GameObject RepresentedBy { get => _representedBy; set => _representedBy = value; }
 
-    public int Quantity => quantity;
+    private int _quantity;
+    public int Quantity { get => _quantity; set => _quantity = value; }
     public InventoryItemScriptableObject InventoryItem => item;
+
+    private void OnEnable()
+    {
+        _quantity = quantity;
+    }
 
     public bool TryMergeStack(InventoryItemEntryScriptableObject inventoryItemEntry)
     {
@@ -23,9 +29,8 @@ public class InventoryItemEntryScriptableObject : ScriptableObject
             RepresentedBy != inventoryItemEntry.RepresentedBy &&
             InventoryItem.ItemName == inventoryItemEntry.InventoryItem.ItemName
         ) {
-            quantity += inventoryItemEntry.Quantity;
+            _quantity += inventoryItemEntry.Quantity;
             Destroy(inventoryItemEntry.RepresentedBy);
-            Destroy(inventoryItemEntry);
             RepresentedBy.GetComponent<InventoryItemDataShell>().SetItemCountField(Quantity);
             return true;
         }
