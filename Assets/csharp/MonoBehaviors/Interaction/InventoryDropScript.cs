@@ -37,21 +37,16 @@ public class InventoryDropScript : MonoBehaviour, IDropHandler
             return;
         }
 
-        IItemManager sourceInventory = null;
-        IItemManager targetInventory = null;
-
-        if (TryGetItem(eventData.pointerDrag, ItemMenuManager.Instance.ActiveContainer.InventoryItems, out InventoryItemEntryScriptableObject dragItem))
+        if (TryGetItem(eventData.pointerDrag, ItemMenuManager.Instance.ActiveContainer.InventoryItems, out InventoryItemStackScriptableObject dragItem))
         {
             //Debug.Log($"Moving {eventData.pointerDrag.name} from container to inventory {name}.");
-            sourceInventory = ItemMenuManager.Instance.ActiveContainer;
-            targetInventory = ItemMenuManager.Instance;
-            
+            TransferItem(dragItem, ItemMenuManager.Instance.ActiveContainer, ItemMenuManager.Instance);
+
         }
         else if (TryGetItem(eventData.pointerDrag, ItemMenuManager.Instance.InventoryItems, out dragItem))
         {
             //Debug.Log($"Moving {eventData.pointerDrag.name} from inventory to container {name}.");
-            sourceInventory = ItemMenuManager.Instance;
-            targetInventory = ItemMenuManager.Instance.ActiveContainer;
+            TransferItem(dragItem, ItemMenuManager.Instance, ItemMenuManager.Instance.ActiveContainer);
         }
         else
         {
@@ -59,8 +54,6 @@ public class InventoryDropScript : MonoBehaviour, IDropHandler
             // The item wasn't found in neither the container nor the inventory.
             return;
         }
-
-        TransferItem(dragItem, sourceInventory, targetInventory);
     }
 
     /// <summary>
@@ -68,9 +61,9 @@ public class InventoryDropScript : MonoBehaviour, IDropHandler
     /// the object that contains this script.
     /// </summary>
     /// <returns>The logical item represented by the item being dropped.</returns>
-    private InventoryItemEntryScriptableObject GetItem(
+    private InventoryItemStackScriptableObject GetItem(
         GameObject pointerDrag,
-        List<InventoryItemEntryScriptableObject> inventoryItems) =>
+        List<InventoryItemStackScriptableObject> inventoryItems) =>
             inventoryItems
                 .Where(iie => (iie.RepresentedBy == pointerDrag))
                     .FirstOrDefault();
@@ -82,8 +75,8 @@ public class InventoryDropScript : MonoBehaviour, IDropHandler
     /// <returns>Whether or not the item could be found.</returns>
     private bool TryGetItem(
         GameObject pointerDrag,
-        List<InventoryItemEntryScriptableObject> inventoryItems,
-        out InventoryItemEntryScriptableObject gameObject)
+        List<InventoryItemStackScriptableObject> inventoryItems,
+        out InventoryItemStackScriptableObject gameObject)
     {
         gameObject = GetItem(pointerDrag,inventoryItems);
         //Debug.Log($"Found: {gameObject?.name ?? "null"}");
@@ -94,7 +87,7 @@ public class InventoryDropScript : MonoBehaviour, IDropHandler
     /// Transfers the inventoryItem from the source to its
     /// destination/target.
     /// </summary>
-    private void TransferItem(InventoryItemEntryScriptableObject inventoryItem, IItemManager sourceInventory, IItemManager targetInventory)
+    private void TransferItem(InventoryItemStackScriptableObject inventoryItem, IItemManager sourceInventory, IItemManager targetInventory)
     {
         targetInventory.AddItemEntry(inventoryItem);
         sourceInventory.InventoryItems.Remove(inventoryItem);

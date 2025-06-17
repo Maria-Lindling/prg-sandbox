@@ -131,34 +131,33 @@ public class BaseCharacterController : MonoBehaviour
         }
     }
 
+    #region OnCollisionEnter
     private void OnCollisionEnter2D(Collision2D collision)
     {
         //Debug.Log("Collision detected with " + collision.gameObject.name);
 
         if (collision.gameObject.CompareTag("Swamp")) isSlowed = true;
     }
+    #endregion
 
+    #region OnTriggerEnter/Stay/Exit
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("ScreenTransition"))
+        switch (collision.gameObject.tag)
         {
+            case "ScreenTransition":
+                (string Destination, int SpawnPoint) = ParseAreaExit(collision.gameObject.name);
 
-            (string Destination, int SpawnPoint) = ParseAreaExit(collision.gameObject.name);
+                Debug.Log($"!!! Transition to new area: {Destination} !!!");
 
-            Debug.Log($"!!! Transition to new area: {Destination} !!!");
-
-            CharacterStatsManager.Instance.SetSpawnPoint(SpawnPoint);
-            SceneManager.LoadScene(Destination);
-        }
-        else if(collision.gameObject.CompareTag("Container"))
-        {
-            //Debug.Log("Entering interaction range of Container.");
-            _interactTarget = collision.gameObject;
-            // Get the specific InputAction for movement.
-            InputAction interactAction = playerInput.actions["Interaction"];
-
-            interactAction.performed += _interactTarget.GetComponent<ItemContainerManager>().Interact;
-            interactAction.canceled += _interactTarget.GetComponent<ItemContainerManager>().Interact;
+                CharacterStatsManager.Instance.SetSpawnPoint(SpawnPoint);
+                SceneManager.LoadScene(Destination);
+                break;
+            
+            case "Container":
+                _interactTarget = collision.gameObject;
+                _interactTarget.GetComponent<ItemContainerManager>().Activate();
+                break;
         }
     }
 
@@ -171,28 +170,26 @@ public class BaseCharacterController : MonoBehaviour
             case "EncounterArea":
                 if( CheckForEncounter() ) LastEncounterPosition = CurrentPosition;
                 break;
-
-            default: /*Debug.LogError("Unknown trigger area.");*/ break;
-
         }
 
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Swamp")) isSlowed = false;
-        else if (collision.gameObject.CompareTag("Container"))
+        switch (collision.gameObject.tag)
         {
-            //Debug.Log("Leaving interaction range of Container.");
-            // Get the specific InputAction for movement.
-            InputAction interactAction = playerInput.actions["Interaction"];
+            case "Swamp": isSlowed = false; break;
 
-            interactAction.performed -= collision.gameObject.GetComponent<ItemContainerManager>().Interact;
-            interactAction.canceled -= collision.gameObject.GetComponent<ItemContainerManager>().Interact;
-
-            _interactTarget = null;
+            case "Container":
+                if (_interactTarget == collision.gameObject)
+                {
+                    collision.gameObject.GetComponent<ItemContainerManager>().Deactivate();
+                    _interactTarget = null;
+                }
+                break;
         }
     }
+    #endregion
 
     private bool CheckForEncounter()
     {

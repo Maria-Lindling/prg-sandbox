@@ -4,54 +4,70 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using UnityEngine.UI;
 
 /// <remarks>
 /// Re-doing this I'd probably make an ItemManager base class which
 /// implements the IItemManager interface.
 /// </remarks>
-public class ItemMenuManager : MonoBehaviour, IItemManager
+public class ItemMenuManager : ItemManager
 {
+    #region Player Character Instance
     private static ItemMenuManager _instance;
     public static ItemMenuManager Instance { get => _instance; private set => _instance = value; }
+    #endregion
 
+    [SerializeField] private RectTransform layoutGroupInventory;
     [SerializeField] private GameObject itemMenuUI;
+
+    [SerializeField] private RectTransform layoutGroupContainer;
+    [SerializeField] private GameObject containerPanelUI;
+    [SerializeField] private GameObject containerPanelBG;
+
     [SerializeField] private GameObject tooltipBox;
-    [SerializeField] private RectTransform layoutGroup;
-    [SerializeField] private GameObject inventoryListEntryPrefab;
-    [SerializeField] private List<InventoryItemEntryScriptableObject> inventoryItems;
 
 
     #region Public Facing Properties
-    public GameObject ItemMenuUI => itemMenuUI;
+    //public GameObject ItemMenuUI => itemMenuUI;
+    public GameObject ContainerPanelUI => containerPanelUI;
+    public GameObject ContainerPanelBG => containerPanelBG;
+    public RectTransform ContainerLayoutGroup => layoutGroupContainer;
     public Canvas InventoryCanvas => itemMenuUI.GetComponent<Canvas>();
     public ItemContainerManager ActiveContainer { get; set; }
-    public List<InventoryItemEntryScriptableObject> InventoryItems => inventoryItems;
     #endregion
 
 
-    public void Start()
+    public new void Start()
     {
+        base.Start();
+
         if (_instance == null)
         {
             _instance = this;
             itemMenuUI.SetActive(false);
+            
             tooltipBox.SetActive(false);
+
+            ContainerPanelUI.SetActive(false);
+            ContainerPanelBG.SetActive(false);
+
             ActiveContainer = null;
         }
         Populate();
     }
 
-    /// <summary>
-    /// Fill the inventory menu with the items assigned to it in the
-    /// unity development GUI.
-    /// </summary>
-    private void Populate()
+    #region overrides: ItemManager 
+    protected override void Populate()
     {
-        inventoryItems.ForEach((ii) => {
+        base.Populate();
 
-            ii.RepresentedBy = Instantiate(inventoryListEntryPrefab, layoutGroup);
+        _inventoryItems.ForEach((ii) => {
+
+            ii.RepresentedBy = Instantiate(_inventoryListEntryPrefab, layoutGroupInventory);
 
             ii.RepresentedBy.name = ii.InventoryItem.name;
+
+            ii.SourceInventory = "PlayerInventory" ;
 
             ii.RepresentedBy.GetComponent<InventoryItemDataShell>()
                 .SetNameField(ii.InventoryItem.ItemName)
@@ -67,8 +83,10 @@ public class ItemMenuManager : MonoBehaviour, IItemManager
     /// the ActiveContainer, as well as setting/releasing the InputLock
     /// placed on player movement.
     /// </summary>
-    public void ToggleItemMenu()
+    public override void ToggleItemMenu()
     {
+        base.ToggleItemMenu();
+
         if( ActiveContainer != null)
         {
             ActiveContainer.ToggleItemMenu();
@@ -77,35 +95,14 @@ public class ItemMenuManager : MonoBehaviour, IItemManager
         itemMenuUI.SetActive(!itemMenuUI.activeSelf);
         BaseCharacterController.Instance.InputLock = itemMenuUI.activeSelf;
     }
+    #endregion
 
-
-    #region IItemManager Interface Implementation
-    public void AddItemEntry(InventoryItemEntryScriptableObject itemEntry)
+    public override void AddItemEntry(InventoryItemStackScriptableObject itemEntry)
     {
-        if (!inventoryItems.Any(extantEntry => extantEntry.TryMergeStack(itemEntry)))
+        if (!_inventoryItems.Any(extantEntry => extantEntry.TryMergeStack(itemEntry)))
         {
-            inventoryItems.Add(itemEntry);
-            itemEntry.RepresentedBy.GetComponent<RectTransform>().SetParent(layoutGroup);
+            _inventoryItems.Add(itemEntry);
+            itemEntry.RepresentedBy.GetComponent<RectTransform>().SetParent(layoutGroupInventory);
         }
     }
-
-    /// <summary>
-    /// Collapses any duplicate item entries into a single item entry that
-    /// with a quantity composed of all item quantities.
-    /// </summary>
-    /// <remarks>
-    /// This is an O(n) operation, but it's straightforward to implement.
-    /// This is for edge-cases and "emergencies", since normally the
-    /// AddItemEntry method already merges items with the same key (name).
-    /// </remarks>
-    public void MergeDuplicates() =>
-        inventoryItems.ForEach(firstEntry => inventoryItems.ForEach(secondEntry=>firstEntry.TryMergeStack(secondEntry)));
-
-    /// <summary>
-    /// Ensures all items stored in this ItemManager actually are children
-    /// of the layoutGroup belonging to this ItemManager.
-    /// </summary>
-    public void Synchronize() =>
-        inventoryItems.ForEach(iie => iie.RepresentedBy.GetComponent<RectTransform>().SetParent(layoutGroup));
-    #endregion
 }

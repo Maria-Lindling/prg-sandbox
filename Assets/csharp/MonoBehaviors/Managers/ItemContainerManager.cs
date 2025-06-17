@@ -6,28 +6,42 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using static UnityEngine.InputSystem.InputAction;
 
-public class ItemContainerManager : MonoBehaviour, IItemManager
+public class ItemContainerManager : ItemManager, IInteractible
 {
-    [SerializeField] private GameObject containerPanelUI;
-    [SerializeField] private GameObject containerPanelBG;
-    [SerializeField] private RectTransform layoutGroup;
-    [SerializeField] private GameObject inventoryListEntryPrefab;
-    [SerializeField] private List<InventoryItemEntryScriptableObject> inventoryItems;
+    private static List<ItemContainerManager> Instances = new List<ItemContainerManager>();
 
-    public List<InventoryItemEntryScriptableObject> InventoryItems => inventoryItems;
-    public void Start()
+    public string InventoryName { get; private set; }
+
+    /// <summary>
+    /// Instantiates the container inventory, ensuring though InventoryName that inventories
+    /// are re-used instead of duplicated if the location containing them is re-entered.
+    /// </summary>
+    public new void Start()
     {
-        containerPanelUI.SetActive(false);
-        containerPanelBG.SetActive(false);
+        base.Start();
+
+        InventoryName = gameObject.name;
+
+        if (ItemContainerManager.Instances.Any(icm=>icm.InventoryName == InventoryName))
+            return;
+
+        Populate();
+
+        ItemContainerManager.Instances.Add(this);
     }
 
-    private void Populate()
+    #region overrides: ItemManager 
+    protected override void Populate()
     {
-        inventoryItems.ForEach((ii) => {
+        base.Populate();
 
-            ii.RepresentedBy = Instantiate(inventoryListEntryPrefab, layoutGroup);
+        _inventoryItems.ForEach((ii) => {
+
+            ii.RepresentedBy = Instantiate(_inventoryListEntryPrefab, ItemMenuManager.Instance.ContainerLayoutGroup);
 
             ii.RepresentedBy.name = ii.InventoryItem.name;
+
+            ii.SourceInventory = InventoryName;
 
             ii.RepresentedBy.GetComponent<InventoryItemDataShell>()
                 .SetNameField(ii.InventoryItem.ItemName)
@@ -35,60 +49,69 @@ public class ItemContainerManager : MonoBehaviour, IItemManager
 
             ii.RepresentedBy.GetComponent<InventoryDragScript>()
                 .SetCanvas(ItemMenuManager.Instance.InventoryCanvas.GetComponent<Canvas>());
-
         });
     }
 
-    private void Depopulate()
+    public override void ToggleItemMenu()
     {
-        inventoryItems.ForEach((ii) => Destroy(ii.RepresentedBy));
-    }
+        base.ToggleItemMenu();
 
-    public void ToggleItemMenu()
-    {
-        containerPanelUI.SetActive(!containerPanelUI.activeSelf);
-        containerPanelBG.SetActive( containerPanelUI.activeSelf);
-        if (containerPanelUI.activeSelf)
+        ItemMenuManager.Instance.ContainerPanelUI.SetActive(!ItemMenuManager.Instance.ContainerPanelUI.activeSelf);
+        ItemMenuManager.Instance.ContainerPanelBG.SetActive( ItemMenuManager.Instance.ContainerPanelUI.activeSelf);
+
+        if (ItemMenuManager.Instance.ContainerPanelUI.activeSelf)
         {
-            Populate();
+            _inventoryItems.ForEach((ii) => { if(ii.RepresentedBy != null && ii.SourceInventory == InventoryName) ii.RepresentedBy.SetActive(true); });
             ItemMenuManager.Instance.ToggleItemMenu();
             ItemMenuManager.Instance.ActiveContainer = this;
         }
         else
         {
             Depopulate();
-            InputAction interactAction = BaseCharacterController.Instance.PlayerInput.actions["Interaction"];
-            interactAction.performed += Interact;
-            interactAction.canceled += Interact;
+            Activate();
         }
+    }
+    #endregion
+
+    private void Depopulate()
+    {
+        _inventoryItems.ForEach((ii) => { if (ii.RepresentedBy != null) ii.RepresentedBy.SetActive(false); });
+    }
+
+    #region interface: IInteractible
+
+    public void Activate()
+    {
+        InputAction interactAction = BaseCharacterController.Instance.PlayerInput.actions["Interaction"];
+        interactAction.performed += Interact;
+        interactAction.canceled += Interact;
+    }
+
+    public void Deactivate()
+    {
+        InputAction interactAction = BaseCharacterController.Instance.PlayerInput.actions["Interaction"];
+        interactAction.performed -= Interact;
+        interactAction.canceled -= Interact;
     }
 
     public void Interact(CallbackContext ctx)
     {
         if( ctx.action.IsPressed() )
         {
-            InputAction interactAction = BaseCharacterController.Instance.PlayerInput.actions["Interaction"];
-            interactAction.performed -= Interact;
-            interactAction.canceled -= Interact;
+            GetComponent<AudioSource>().Play();
+
+            Deactivate();
 
             ToggleItemMenu();
         }
     }
-
-    #region IItemManager Interface Implementation
-    public void AddItemEntry(InventoryItemEntryScriptableObject itemEntry)
+    #endregion
+    public override void AddItemEntry(InventoryItemStackScriptableObject itemEntry)
     {
-        if (!inventoryItems.Any(extantEntry => extantEntry.TryMergeStack(itemEntry)))
+        if (!_inventoryItems.Any(extantEntry => extantEntry.TryMergeStack(itemEntry)))
         {
-            inventoryItems.Add(itemEntry);
-            itemEntry.RepresentedBy.GetComponent<RectTransform>().SetParent(layoutGroup);
+            _inventoryItems.Add(itemEntry);
+            itemEntry.RepresentedBy.GetComponent<RectTransform>().SetParent(ItemMenuManager.Instance.ContainerLayoutGroup);
         }
     }
-
-    public void MergeDuplicates() =>
-        inventoryItems.ForEach(firstEntry => inventoryItems.ForEach(secondEntry => firstEntry.TryMergeStack(secondEntry)));
-
-    public void Synchronize() =>
-        inventoryItems.ForEach((iie) => iie.RepresentedBy.GetComponent<RectTransform>().SetParent(layoutGroup));
-    #endregion
 }

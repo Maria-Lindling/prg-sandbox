@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b00010f2a092ee540a8570b9b141247c, type: 3}
-  m_Name: SingleKnife
+  m_Script: {fileID: 11500000, guid: 7a7e0e40faaf52649abb6752d75f987f, type: 3}
+  m_Name: OneKnife
   m_EditorClassIdentifier: 
   item: {fileID: 11400000, guid: d254a623c17a37b49afbb33ab7b2bc99, type: 2}
   quantity: 1

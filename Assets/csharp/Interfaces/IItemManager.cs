@@ -4,8 +4,8 @@ using UnityEngine;
 
 public interface IItemManager
 {
-    public List<InventoryItemEntryScriptableObject> InventoryItems { get; }
-    public void AddItemEntry(InventoryItemEntryScriptableObject itemEntry);
+    public List<InventoryItemStackScriptableObject> InventoryItems { get; }
+    public void AddItemEntry(InventoryItemStackScriptableObject itemEntry);
     public void MergeDuplicates();
     public void Synchronize();
 }
